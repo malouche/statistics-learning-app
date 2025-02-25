@@ -8,8 +8,8 @@ from modules.measures_variability import measures_variability_tab
 from modules.visualization import visualization_tab
 from modules.all_stats import all_stats_tab
 from modules.measures_center import calculate_mean, calculate_median, calculate_mode, measures_center_tab
-from about import show_about
-from feedback import show_feedback
+from modules.about import show_about
+from modules.feedback import show_feedback
 
 # Set page config
 st.set_page_config(
