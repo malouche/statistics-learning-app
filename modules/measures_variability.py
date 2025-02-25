@@ -71,30 +71,28 @@ def calculate_variance(data, is_population=False):
     **Formula**: ${formula}$
     
     **Step 1**: Calculate the mean
-    $\\text{{mean}} = \\frac{{\\sum_{{i=1}}^{{{n}}} x_i}}{{{n}}} = \\frac{{{sum(data)}}}{{{n}}} = {mean_val:.6f}$
+    $\\text{{mean}} = \\displaystyle\\frac{{\\sum_{{i=1}}^{{{n}}} x_i}}{{{n}}} = \\displaystyle\\frac{{{sum(data)}}}{{{n}}} = {mean_val:.6f}$
     
-    **Step 2**: Calculate deviations from the mean and square them
     
-    {calc_table.to_markdown(index=False)}
     
-    **Step 3**: Sum the squared deviations
-    $\\sum_{{i=1}}^{{{n}}} (x_i - \\text{{mean}})^2 = {sum_squared_devs:.6f}$
+    **Step 2**: Sum the squared deviations
+    $\\displaystyle\\sum_{{i=1}}^{{{n}}} (x_i - \\text{{mean}})^2 = {sum_squared_devs:.6f}$
     
-    **Step 4**: Divide by {'N' if is_population else 'n-1'}
+    **Step 3**: Divide by {'N' if is_population else 'n-1'}
     ${notation} = \\frac{{{sum_squared_devs:.6f}}}{{{divisor}}} = {variance:.6f}$
     
     #### Alternative Calculation Method (Computational Formula)
     
     This method can be more efficient for computation:
     
-    **Formula**: ${notation} = \\frac{{\\sum_{{i=1}}^{{{n}}} x_i^2 - \\frac{{(\\sum_{{i=1}}^{{{n}}} x_i)^2}}{{{n}}}}}{{{divisor}}}$
+    **Formula**: ${notation} = \\displaystyle\\frac{{\\sum_{{i=1}}^{{{n}}} x_i^2 - \\frac{{(\\sum_{{i=1}}^{{{n}}} x_i)^2}}{{{n}}}}}{{{divisor}}}$
     
-    **Step 1**: Calculate $\\sum_{{i=1}}^{{{n}}} x_i = {sum_x:.6f}$
+    **Step 1**: Calculate $\\displaystyle\\sum_{{i=1}}^{{{n}}} x_i = {sum_x:.6f}$
     
-    **Step 2**: Calculate $\\sum_{{i=1}}^{{{n}}} x_i^2 = {sum_x_squared:.6f}$
+    **Step 2**: Calculate $\\displaystyle\\sum_{{i=1}}^{{{n}}} x_i^2 = {sum_x_squared:.6f}$
     
     **Step 3**: Apply the formula:
-    ${notation} = \\frac{{{sum_x_squared:.6f} - \\frac{{{sum_x:.6f}^2}}{{{n}}}}}{{{divisor}}} = \\frac{{{sum_x_squared:.6f} - \\frac{{{sum_x ** 2:.6f}}}{{{n}}}}}{{{divisor}}} = {alt_variance:.6f}$
+    ${notation} = \\displaystyle\\frac{{{sum_x_squared:.6f} - \\displaystyle\\frac{{{sum_x:.6f}^2}}{{{n}}}}}{{{divisor}}} = \\displaystyle\\frac{{{sum_x_squared:.6f} - \\displaystyle\\frac{{{sum_x ** 2:.6f}}}{{{n}}}}}{{{divisor}}} = {alt_variance:.6f}$
     """
     
     return variance, steps
