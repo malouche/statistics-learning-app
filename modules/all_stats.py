@@ -37,7 +37,7 @@ def generate_descriptive_stats(data, is_population=False):
     n = len(data)
     mean_val, _ = calculate_mean(data)
     median_val, _ = calculate_median(data)
-    mode_vals, _ = calculate_mode(data)
+    mode_vals, _, _ = calculate_mode(data)
     
     if mode_vals:
         mode_str = ", ".join([str(x) for x in sorted(mode_vals)])
