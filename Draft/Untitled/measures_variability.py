@@ -75,7 +75,6 @@ def calculate_variance(data, is_population=False):
     
     **Step 2**: Calculate deviations from the mean and square them
     
-    {calc_table.to_markdown(index=False)}
     
     **Step 3**: Sum the squared deviations
     $\\sum_{{i=1}}^{{{n}}} (x_i - \\text{{mean}})^2 = {sum_squared_devs:.6f}$
