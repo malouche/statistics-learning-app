@@ -1,6 +1,7 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 def calculate_mean(data):
     """Calculate the mean with step-by-step explanation"""
