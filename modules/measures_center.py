@@ -91,17 +91,40 @@ def calculate_mode(data):
         "Frequency": list(value_counts.values())
     }).sort_values("Value").reset_index(drop=True)
     
-    # Create a markdown table
-    freq_table_md = "| Value | Frequency |\n| ---: | ---: |\n"
+    # Convert values to appropriate types for display
+    freq_table = freq_table.astype({"Value": float, "Frequency": int})
     
-    # Add rows with special notation for mode values
+    # Create a more visually appealing markdown table
+    has_decimals = any(x != int(x) for x in freq_table['Value'])
+    value_format = ".2f" if has_decimals else ""
+    
+    # Build an improved markdown table
+    freq_table_md = """| Value | Frequency | Bar Chart |\n|------:|----------:|:----------|\n"""
+    
+    max_freq = max(freq_table['Frequency'])
+    bar_scale = 20  # Maximum number of characters for the full bar
+    
+    # Add rows with special formatting for mode values
     for _, row in freq_table.iterrows():
         value = row['Value']
         frequency = row['Frequency']
-        if value in mode_values:
-            freq_table_md += f"| **{value}** | **{frequency}** |\n"
+        is_mode = value in mode_values
+        
+        # Format the value based on whether it's an integer or float
+        if has_decimals:
+            value_str = f"{value:.2f}"
         else:
-            freq_table_md += f"| {value} | {frequency} |\n"
+            value_str = f"{int(value)}"
+        
+        # Create a bar representing the frequency
+        bar_length = int((frequency / max_freq) * bar_scale)
+        bar = "█" * bar_length
+        
+        # Add bold formatting if this is a mode value
+        if is_mode:
+            freq_table_md += f"| **{value_str}** | **{frequency}** | **{bar}** |\n"
+        else:
+            freq_table_md += f"| {value_str} | {frequency} | {bar} |\n"
     
     # Generate explanation
     if mode_values:
@@ -197,18 +220,9 @@ def measures_center_tab(data):
         
         # Display frequency distribution in a nice format
         st.write("")
-        st.write("**Frequency Distribution:**")
+        st.write("**Interactive Frequency Distribution:**")
         
-        # Convert columns to ensure proper types
-        freq_df = freq_df.astype({"Value": float, "Frequency": int})
-        
-        # Create a color list for highlighting
-        colors = [''] * len(freq_df)
-        for i, val in enumerate(freq_df['Value']):
-            if float(val) in [float(m) for m in mode_values]:
-                colors[i] = '#e6f3ff'  # Light blue background for mode values
-        
-        # Display with conditional formatting
+        # Display with conditional formatting and custom column config
         st.dataframe(
             freq_df,
             column_config={
@@ -224,6 +238,55 @@ def measures_center_tab(data):
             hide_index=True,
             use_container_width=True
         )
+        
+        # Add a bar chart visualization of the frequencies
+        if not freq_df.empty:
+            st.write("**Frequency Visualization:**")
+            
+            # Create a horizontal bar chart
+            chart_data = freq_df.copy()
+            
+            # Highlight the mode values
+            chart_colors = []
+            for val in chart_data['Value']:
+                if val in mode_values:
+                    chart_colors.append("#1f77b4")  # Highlight color
+                else:
+                    chart_colors.append("#aec7e8")  # Regular color
+            
+            # Plot the bar chart
+            fig, ax = plt.subplots(figsize=(10, 5))
+            
+            # Sort by frequency for better visualization
+            chart_data_sorted = chart_data.sort_values(by="Frequency")
+            
+            # Convert values to strings for the chart
+            is_float = any(x != int(x) for x in chart_data_sorted['Value'])
+            if is_float:
+                value_labels = [f"{x:.2f}" for x in chart_data_sorted['Value']]
+            else:
+                value_labels = [f"{int(x)}" for x in chart_data_sorted['Value']]
+            
+            # Create the horizontal bar chart
+            bars = ax.barh(value_labels, chart_data_sorted['Frequency'], color=chart_colors)
+            
+            # Highlight mode value bars
+            for i, val in enumerate(chart_data_sorted['Value']):
+                if val in mode_values:
+                    bars[i].set_edgecolor('black')
+                    bars[i].set_linewidth(2)
+            
+            # Add frequency labels on the bars
+            for i, v in enumerate(chart_data_sorted['Frequency']):
+                ax.text(v + 0.1, i, str(v), va='center')
+            
+            # Set labels and title
+            ax.set_xlabel('Frequency')
+            ax.set_ylabel('Value')
+            ax.set_title('Frequency Distribution')
+            
+            # Display the chart
+            st.pyplot(fig)
     
     # Provide context about when to use each measure
     with st.expander("When to use each measure of center"):
