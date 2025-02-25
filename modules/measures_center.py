@@ -61,10 +61,6 @@ def calculate_median(data):
     
     return median_value, steps
 
-import pandas as pd
-from IPython.display import Markdown, display
-import textwrap
-
 def calculate_mode(data):
     """Calculate the mode with step-by-step explanation without displaying the frequency table."""
     # Count occurrences of each value
@@ -108,9 +104,13 @@ def calculate_mode(data):
     Result: {result}
     """)
     
-    return mode_values, steps
-
-
+    # Create frequency DataFrame
+    freq_df = pd.DataFrame({
+        "Value": list(value_counts.keys()),
+        "Frequency": list(value_counts.values())
+    }).sort_values(by="Value").reset_index(drop=True)
+    
+    return mode_values, steps, freq_df
 
 
 def measures_center_tab(data):
