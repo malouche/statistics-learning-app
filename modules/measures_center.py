@@ -19,10 +19,10 @@ def calculate_mean(data):
     **Formula**: $\\bar{{x}} = \\frac{{\\sum_{{i=1}}^{{n}} x_i}}{{n}}$
     
     **Step 1**: Sum all measurements
-    $\\sum_{{i=1}}^{{{n}}} x_i = {' + '.join([str(x) for x in data])} = {sum_data}$
+    $\\displaystyle\\sum_{{i=1}}^{{{n}}} x_i = {' + '.join([str(x) for x in data])} = {sum_data}$
     
     **Step 2**: Divide by the number of measurements (n = {n})
-    $\\bar{{x}} = \\frac{{{sum_data}}}{{{n}}} = {mean_value:.6f}$
+    $\\bar{{x}} = \\displaystyle\\frac{{{sum_data}}}{{{n}}} = {mean_value:.6f}$
     """
     
     return mean_value, steps

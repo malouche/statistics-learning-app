@@ -8,6 +8,8 @@ from modules.measures_variability import measures_variability_tab
 from modules.visualization import visualization_tab
 from modules.all_stats import all_stats_tab
 from modules.measures_center import calculate_mean, calculate_median, calculate_mode, measures_center_tab
+from about import show_about
+from feedback import show_feedback
 
 # Set page config
 st.set_page_config(
@@ -55,7 +57,7 @@ data = data_input_sidebar()
 
 # Main content with tabs
 if data is not None and len(data) > 0:
-    tab1, tab2, tab3, tab4 = st.tabs(["📏 Measures of Center", "📊 Measures of Variability", "📈 Visualization", "🧮 All Statistics", " About", " Feedback"])
+    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["📏 Measures of Center", "📊 Measures of Variability", "📈 Visualization", "🧮 All Statistics", " About", " Feedback"])
     
     with tab1:
         measures_center_tab(data)
@@ -69,10 +71,10 @@ if data is not None and len(data) > 0:
     with tab4:
         all_stats_tab(data)
         
-   with tabs5:
-        show_about()
+    with tab5:
+       show_about()
             
-   with tabs6:
-        show_feedback()
+    with tab6:
+       show_feedback()
 else:
     st.info("👈 Please enter your data in the sidebar to get started.")
