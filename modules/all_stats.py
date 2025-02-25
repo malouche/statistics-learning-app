@@ -149,7 +149,7 @@ def all_stats_tab(data):
     
     with col1:
         # Calculate all statistics
-        is_population = st.checkbox("Treat as population data")
+        is_population = st.checkbox("Treat as population data", key="all_stats_population")
         stats = generate_descriptive_stats(data, is_population)
         
         # Create and display summary tables

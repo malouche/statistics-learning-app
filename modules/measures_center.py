@@ -86,7 +86,7 @@ def calculate_mode(data):
     
     # Generate explanation without the frequency table
     if mode_values:
-        mode_str = ", ".join(str(x) for x in sorted(mode_values))
+        mode_str = ", ".join(str(x) for x in sorted(mode_values, key=lambda x: float(x) if isinstance(x, (int, float)) or (isinstance(x, str) and x.replace('.', '', 1).isdigit()) else float('inf')))
         result = f"{mode_str} (each appears {max_count} times)"
     else:
         result = "No mode (all values appear only once)"
@@ -108,7 +108,17 @@ def calculate_mode(data):
     freq_df = pd.DataFrame({
         "Value": list(value_counts.keys()),
         "Frequency": list(value_counts.values())
-    }).sort_values(by="Value").reset_index(drop=True)
+    })
+    
+    # Try to convert values to numeric for better sorting
+    try:
+        freq_df["Value"] = pd.to_numeric(freq_df["Value"])
+    except (ValueError, TypeError):
+        # If conversion fails, leave as is
+        pass
+        
+    # Sort values and reset index
+    freq_df = freq_df.sort_values(by="Value").reset_index(drop=True)
     
     return mode_values, steps, freq_df
 
@@ -204,41 +214,64 @@ def measures_center_tab(data):
         if not freq_df.empty:
             st.write("**Frequency Visualization:**")
             
-            # Create a horizontal bar chart
+            # Create a copy of the dataframe for visualization
             chart_data = freq_df.copy()
             
-            # Highlight the mode values
+            # Sort by frequency for better visualization
+            chart_data = chart_data.sort_values(by="Frequency")
+            
+            # Make sure values are numeric for comparison with mode_values when possible
+            try:
+                chart_data['Value'] = pd.to_numeric(chart_data['Value'])
+            except (ValueError, TypeError):
+                pass
+
+            # Create color list for bars
             chart_colors = []
             for val in chart_data['Value']:
-                if val in mode_values:
-                    chart_colors.append("#1f77b4")  # Highlight color
+                try:
+                    val_numeric = float(val) if isinstance(val, str) else val
+                    mode_values_numeric = [float(mv) if isinstance(mv, str) else mv for mv in mode_values]
+                    
+                    if any(abs(val_numeric - mv_num) < 1e-10 for mv_num in mode_values_numeric):
+                        chart_colors.append("#1f77b4")  # Highlight color for mode values
+                    else:
+                        chart_colors.append("#aec7e8")  # Regular color
+                except (ValueError, TypeError):
+                    chart_colors.append("#aec7e8")  # Default color if conversion fails
+            
+            # Format values for display
+            try:
+                # Check if values contain decimals
+                is_float = any(isinstance(x, (float, np.float64)) and x != int(x) 
+                               for x in chart_data['Value'] if pd.notna(x))
+                
+                if is_float:
+                    value_labels = [f"{float(x):.2f}" if pd.notna(x) else "" for x in chart_data['Value']]
                 else:
-                    chart_colors.append("#aec7e8")  # Regular color
+                    value_labels = [f"{int(float(x))}" if pd.notna(x) else "" for x in chart_data['Value']]
+            except (ValueError, TypeError):
+                # If conversion fails, use string representation
+                value_labels = [str(x) for x in chart_data['Value']]
             
-            # Plot the bar chart
+            # Create the plot
             fig, ax = plt.subplots(figsize=(10, 5))
+            bars = ax.barh(value_labels, chart_data['Frequency'], color=chart_colors)
             
-            # Sort by frequency for better visualization
-            chart_data_sorted = chart_data.sort_values(by="Frequency")
-            
-            # Convert values to strings for the chart
-            is_float = any(x != int(x) for x in chart_data_sorted['Value'])
-            if is_float:
-                value_labels = [f"{x:.2f}" for x in chart_data_sorted['Value']]
-            else:
-                value_labels = [f"{int(x)}" for x in chart_data_sorted['Value']]
-            
-            # Create the horizontal bar chart
-            bars = ax.barh(value_labels, chart_data_sorted['Frequency'], color=chart_colors)
-            
-            # Highlight mode value bars
-            for i, val in enumerate(chart_data_sorted['Value']):
-                if val in mode_values:
-                    bars[i].set_edgecolor('black')
-                    bars[i].set_linewidth(2)
+            # Highlight bars for mode values
+            for i, val in enumerate(chart_data['Value']):
+                try:
+                    val_numeric = float(val) if isinstance(val, str) else val
+                    mode_values_numeric = [float(mv) if isinstance(mv, str) else mv for mv in mode_values]
+                    
+                    if any(abs(val_numeric - mv_num) < 1e-10 for mv_num in mode_values_numeric):
+                        bars[i].set_edgecolor('black')
+                        bars[i].set_linewidth(2)
+                except (ValueError, TypeError):
+                    pass  # Skip if conversion fails
             
             # Add frequency labels on the bars
-            for i, v in enumerate(chart_data_sorted['Frequency']):
+            for i, v in enumerate(chart_data['Frequency']):
                 ax.text(v + 0.1, i, str(v), va='center')
             
             # Set labels and title

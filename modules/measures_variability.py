@@ -263,7 +263,7 @@ def measures_variability_tab(data):
             st.metric("IQR", f"{iqr_val:.4f}")
         
         with col2:
-            is_population = st.checkbox("Treat as population data")
+            is_population = st.checkbox("Treat as population data", key="variability_compare_all_population")
             
             st.subheader("Variance")
             variance, _ = calculate_variance(data, is_population)
@@ -317,7 +317,7 @@ def measures_variability_tab(data):
         """)
     
     elif measure == "Variance":
-        is_population = st.checkbox("Treat as population data")
+        is_population = st.checkbox("Treat as population data", key="variability_variance_population")
         variance, steps = calculate_variance(data, is_population)
         st.metric("Variance", f"{variance:.6f}")
         st.markdown(steps)
@@ -331,7 +331,7 @@ def measures_variability_tab(data):
         """)
     
     elif measure == "Standard Deviation":
-        is_population = st.checkbox("Treat as population data")
+        is_population = st.checkbox("Treat as population data", key="variability_std_dev_population")
         std_dev, steps, var_steps = calculate_std_dev(data, is_population)
         st.metric("Standard Deviation", f"{std_dev:.6f}")
         st.markdown(steps)
