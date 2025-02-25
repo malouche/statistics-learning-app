@@ -2,6 +2,8 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import textwrap
+
 
 def calculate_mean(data):
     """Calculate the mean with step-by-step explanation"""
@@ -59,25 +61,25 @@ def calculate_median(data):
     
     return median_value, steps
 
+import pandas as pd
+from IPython.display import Markdown, display
+import textwrap
+
 def calculate_mode(data):
-    """Calculate the mode with step-by-step explanation"""
+    """Calculate the mode with step-by-step explanation without displaying the frequency table."""
     # Count occurrences of each value
     value_counts = {}
     for x in data:
-        if x in value_counts:
-            value_counts[x] += 1
-        else:
-            value_counts[x] = 1
-    
+        value_counts[x] = value_counts.get(x, 0) + 1
+
     # Find the maximum frequency
     max_count = max(value_counts.values())
     
-    # If all values appear once, there is no mode
+    # Determine mode and mode type
     if max_count == 1:
         mode_values = []
         mode_type = "No mode"
     else:
-        # Find all values with the maximum frequency
         mode_values = [x for x, count in value_counts.items() if count == max_count]
         if len(mode_values) == 1:
             mode_type = "Unimodal"
@@ -86,72 +88,30 @@ def calculate_mode(data):
         else:
             mode_type = "Multimodal"
     
-    # Generate frequency table
-    freq_table = pd.DataFrame({
-        "Value": list(value_counts.keys()),
-        "Frequency": list(value_counts.values())
-    }).sort_values("Value").reset_index(drop=True)
-    
-    # Convert values to appropriate types for display
-    freq_table = freq_table.astype({"Value": float, "Frequency": int})
-    
-    # Create a more visually appealing markdown table
-    has_decimals = any(x != int(x) for x in freq_table['Value'])
-    value_format = ".2f" if has_decimals else ""
-    
-    # Build an improved markdown table
-    freq_table_md = """| Value | Frequency | Bar Chart |\n|------:|----------:|:----------|\n"""
-    
-    max_freq = max(freq_table['Frequency'])
-    bar_scale = 20  # Maximum number of characters for the full bar
-    
-    # Add rows with special formatting for mode values
-    for _, row in freq_table.iterrows():
-        value = row['Value']
-        frequency = row['Frequency']
-        is_mode = value in mode_values
-        
-        # Format the value based on whether it's an integer or float
-        if has_decimals:
-            value_str = f"{value:.2f}"
-        else:
-            value_str = f"{int(value)}"
-        
-        # Create a bar representing the frequency
-        bar_length = int((frequency / max_freq) * bar_scale)
-        bar = "█" * bar_length
-        
-        # Add bold formatting if this is a mode value
-        if is_mode:
-            freq_table_md += f"| **{value_str}** | **{frequency}** | **{bar}** |\n"
-        else:
-            freq_table_md += f"| {value_str} | {frequency} | {bar} |\n"
-    
-    # Generate explanation
+    # Generate explanation without the frequency table
     if mode_values:
-        mode_str = ", ".join([str(x) for x in sorted(mode_values)])
+        mode_str = ", ".join(str(x) for x in sorted(mode_values))
         result = f"{mode_str} (each appears {max_count} times)"
     else:
         result = "No mode (all values appear only once)"
     
-    steps = f"""
+    steps = textwrap.dedent(f"""
     ### Mode Calculation
-    
-    The mode is the value(s) that appear most frequently in the dataset.
-    
-    **Step 1**: Count the frequency of each value
-    
-    {freq_table_md}
-    
-    **Step 2**: Identify the value(s) with the highest frequency
+
+    **Step 1**: Count the frequency of each value.
+
+    **Step 2**: Identify the value(s) with the highest frequency.  
     Maximum frequency: {max_count}
-    
-    **Step 3**: Determine the mode
-    Mode type: {mode_type}
+
+    **Step 3**: Determine the mode.  
+    Mode type: {mode_type}  
     Result: {result}
-    """
+    """)
     
-    return mode_values, steps, freq_table
+    return mode_values, steps
+
+
+
 
 def measures_center_tab(data):
     """Display the measures of center tab content"""
