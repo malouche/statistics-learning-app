@@ -91,12 +91,17 @@ def calculate_mode(data):
         "Frequency": list(value_counts.values())
     }).sort_values("Value").reset_index(drop=True)
     
-    # Create a markdown table instead of HTML
+    # Create a markdown table
     freq_table_md = "| Value | Frequency |\n| ---: | ---: |\n"
     
-    # Add rows with highlighting for the mode values
+    # Add rows with special notation for mode values
     for _, row in freq_table.iterrows():
-        freq_table_md += f"| {row['Value']} | {row['Frequency']} |\n"
+        value = row['Value']
+        frequency = row['Frequency']
+        if value in mode_values:
+            freq_table_md += f"| **{value}** | **{frequency}** |\n"
+        else:
+            freq_table_md += f"| {value} | {frequency} |\n"
     
     # Generate explanation
     if mode_values:
@@ -122,7 +127,7 @@ def calculate_mode(data):
     Result: {result}
     """
     
-    return mode_values, steps
+    return mode_values, steps, freq_table
 
 def measures_center_tab(data):
     """Display the measures of center tab content"""
@@ -156,7 +161,7 @@ def measures_center_tab(data):
         
         with col3:
             st.subheader("Mode")
-            mode_values, mode_steps = calculate_mode(data)
+            mode_values, mode_steps, _ = calculate_mode(data)
             if mode_values:
                 mode_display = ", ".join([str(x) for x in sorted(mode_values)])
             else:
@@ -182,7 +187,7 @@ def measures_center_tab(data):
         st.markdown(steps)
     
     elif measure == "Mode":
-        mode_values, steps = calculate_mode(data)
+        mode_values, steps, freq_df = calculate_mode(data)
         if mode_values:
             mode_display = ", ".join([str(x) for x in sorted(mode_values)])
         else:
@@ -190,31 +195,35 @@ def measures_center_tab(data):
         st.metric("Mode", mode_display)
         st.markdown(steps)
         
-        # Highlight the mode values in a separate section
-        if mode_values:
-            st.write("**Mode values highlighted:**")
-            
-            # Create a dataframe with mode values highlighted
-            freq_df = pd.DataFrame()
-            value_counts = {}
-            for x in data:
-                if x in value_counts:
-                    value_counts[x] += 1
-                else:
-                    value_counts[x] = 1
-                    
-            freq_df = pd.DataFrame({
-                "Value": list(value_counts.keys()),
-                "Frequency": list(value_counts.values())
-            }).sort_values("Value").reset_index(drop=True)
-            
-            # Use st.dataframe with styling to highlight the mode
-            def highlight_mode(row):
-                if row["Value"] in mode_values:
-                    return ['background-color: #e6f3ff; font-weight: bold;'] * 2
-                return [''] * 2
-            
-            st.dataframe(freq_df.style.apply(highlight_mode, axis=1))
+        # Display frequency distribution in a nice format
+        st.write("")
+        st.write("**Frequency Distribution:**")
+        
+        # Convert columns to ensure proper types
+        freq_df = freq_df.astype({"Value": float, "Frequency": int})
+        
+        # Create a color list for highlighting
+        colors = [''] * len(freq_df)
+        for i, val in enumerate(freq_df['Value']):
+            if float(val) in [float(m) for m in mode_values]:
+                colors[i] = '#e6f3ff'  # Light blue background for mode values
+        
+        # Display with conditional formatting
+        st.dataframe(
+            freq_df,
+            column_config={
+                "Value": st.column_config.NumberColumn(
+                    "Value",
+                    format="%.2f" if any(x != int(x) for x in freq_df['Value']) else "%d"
+                ),
+                "Frequency": st.column_config.NumberColumn(
+                    "Frequency", 
+                    format="%d"
+                )
+            },
+            hide_index=True,
+            use_container_width=True
+        )
     
     # Provide context about when to use each measure
     with st.expander("When to use each measure of center"):
