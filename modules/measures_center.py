@@ -91,6 +91,60 @@ def calculate_mode(data):
         "Frequency": list(value_counts.values())
     }).sort_values("Value").reset_index(drop=True)
     
+    # Format the frequency table more nicely
+    freq_table_html = """
+    <table class="mode-table">
+      <thead>
+        <tr>
+          <th>Value</th>
+          <th>Frequency</th>
+        </tr>
+      </thead>
+      <tbody>
+    """
+    
+    # Add rows with highlighting for the mode values
+    for _, row in freq_table.iterrows():
+        if row["Value"] in mode_values:
+            freq_table_html += f"""
+            <tr style="background-color: #e6f3ff; font-weight: bold;">
+              <td>{row["Value"]}</td>
+              <td>{row["Frequency"]}</td>
+            </tr>
+            """
+        else:
+            freq_table_html += f"""
+            <tr>
+              <td>{row["Value"]}</td>
+              <td>{row["Frequency"]}</td>
+            </tr>
+            """
+    
+    freq_table_html += """
+      </tbody>
+    </table>
+    
+    <style>
+    .mode-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+    }
+    .mode-table th, .mode-table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+    .mode-table th {
+      background-color: #f2f2f2;
+      font-weight: bold;
+    }
+    .mode-table tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    </style>
+    """
+    
     # Generate explanation
     if mode_values:
         mode_str = ", ".join([str(x) for x in sorted(mode_values)])
@@ -105,7 +159,7 @@ def calculate_mode(data):
     
     **Step 1**: Count the frequency of each value
     
-    {freq_table.to_markdown(index=False)}
+    {freq_table_html}
     
     **Step 2**: Identify the value(s) with the highest frequency
     Maximum frequency: {max_count}
@@ -162,7 +216,7 @@ def measures_center_tab(data):
             st.markdown("---")
             st.markdown(median_steps)
             st.markdown("---")
-            st.markdown(mode_steps)
+            st.markdown(mode_steps, unsafe_allow_html=True)
     
     elif measure == "Mean":
         mean_value, steps = calculate_mean(data)
@@ -181,7 +235,7 @@ def measures_center_tab(data):
         else:
             mode_display = "No mode"
         st.metric("Mode", mode_display)
-        st.markdown(steps)
+        st.markdown(steps, unsafe_allow_html=True)
     
     # Provide context about when to use each measure
     with st.expander("When to use each measure of center"):
