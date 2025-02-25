@@ -4,10 +4,10 @@ import numpy as np
 
 # Import modules for different functionalities
 from modules.data_input import data_input_sidebar
-from modules.measures_center import measures_center_tab
 from modules.measures_variability import measures_variability_tab
 from modules.visualization import visualization_tab
 from modules.all_stats import all_stats_tab
+from modules.measures_center import calculate_mean, calculate_median, calculate_mode, measures_center_tab
 
 # Set page config
 st.set_page_config(
